@@ -1,0 +1,1 @@
+nohup java -cp .:./lib/* com.nandbox.bots.scheduler.SchedulerBot &>  nohup.out &
