@@ -126,7 +126,7 @@ class Helper{
 		Date wakeUpDate=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(timeString);
 		long scheduledTime = wakeUpDate.getTime();
 		System.out.println("msToAdd: " + msToAdd);
-		return scheduledTime + msToAdd;
+		return scheduledTime - msToAdd;
 	}
 	
 	public OutMessage setMessageBasics(OutMessage message,String chatId,Long scheduledTime,Integer chatSettings,String toUserId) {
@@ -337,6 +337,7 @@ public class SchedulerBot {
 						
 						//Handling the case where the user sets the date format to be in a past time, or sends the alert message after the scheduled date had already passed
 						long currentEpoch = Instant.now().toEpochMilli();
+						System.out.println("currentEpoch: " + currentEpoch + " scheduledTime: " + scheduledTime);
 						if(currentEpoch > scheduledTime)
 						{
 							TextOutMessage errorMessage = new TextOutMessage();
