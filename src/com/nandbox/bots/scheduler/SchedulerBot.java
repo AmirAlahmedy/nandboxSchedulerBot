@@ -310,7 +310,7 @@ public class SchedulerBot {
 							
 							System.out.println("tzHr: " + timeZoneHr + " tzMn: " + timeZoneMn);
 							
-							long currentTimeZoneOffsetInMs =  TimeZone.getDefault().getOffset(0);
+							long currentTimeZoneOffsetInMs =  TimeZone.getDefault().getOffset(0) + 60*60*1000;
 							
 							System.out.println("currentTimeZoneOffsetInMs: " + currentTimeZoneOffsetInMs);
 							
