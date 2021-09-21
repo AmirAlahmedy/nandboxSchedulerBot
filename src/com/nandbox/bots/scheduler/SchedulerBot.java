@@ -126,7 +126,7 @@ class Helper{
 		Date wakeUpDate=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(timeString);
 		long scheduledTime = wakeUpDate.getTime();
 		System.out.println("msToAdd: " + msToAdd);
-		return scheduledTime - msToAdd;
+		return scheduledTime + msToAdd;
 	}
 	
 	public OutMessage setMessageBasics(OutMessage message,String chatId,Long scheduledTime,Integer chatSettings,String toUserId) {
