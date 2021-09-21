@@ -310,7 +310,9 @@ public class SchedulerBot {
 							
 							System.out.println("tzHr: " + timeZoneHr + " tzMn: " + timeZoneMn);
 							
-							long currentTimeZoneOffsetInMs =  TimeZone.getDefault().getOffset(0) + 60*60*1000; // CDT time zone is GMT-5 not GMT-6
+							System.out.println("Daylight Savings: " + TimeZone.getDefault().getDSTSavings());
+							
+							long currentTimeZoneOffsetInMs =  TimeZone.getDefault().getOffset(0) + TimeZone.getDefault().getDSTSavings();//60*60*1000; // CDT time zone is GMT-5 not GMT-6
 							
 							System.out.println("currentTimeZoneOffsetInMs: " + currentTimeZoneOffsetInMs);
 							
