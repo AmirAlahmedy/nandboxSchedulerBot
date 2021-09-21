@@ -312,6 +312,8 @@ public class SchedulerBot {
 							
 							long currentTimeZoneOffsetInMs =  TimeZone.getDefault().getOffset(0);
 							
+							System.out.println("currentTimeZoneOffsetInMs: " + currentTimeZoneOffsetInMs);
+							
 							long msToAdd = 0;
 							if(operator == '+')
 								msToAdd = timeZoneHr*60*60*1000 + timeZoneMn*60*1000 - currentTimeZoneOffsetInMs;
