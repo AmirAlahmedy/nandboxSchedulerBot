@@ -243,6 +243,32 @@ public class SchedulerBot {
 		return prop.getProperty("Token");
 	}
 	
+	private static long getDeltaFromDB(String chatId, Database db) throws SQLException {
+		return computeDelta(db.getTimeZoneFromDB(chatId));
+	}
+	
+	private static long computeDelta(TimeZoneOffset offset) {
+		int timeZoneHr = offset.getHour();
+		int timeZoneMn = offset.getMinute();
+		char operator = offset.getOperator();
+		
+		System.out.println("tzHr: " + timeZoneHr + " tzMn: " + timeZoneMn);
+		
+		System.out.println("Daylight Savings: " + TimeZone.getDefault().getDSTSavings());
+		
+		long currentTimeZoneOffsetInMs =  TimeZone.getDefault().getOffset(0) + TimeZone.getDefault().getDSTSavings();
+		
+		System.out.println("currentTimeZoneOffsetInMs: " + currentTimeZoneOffsetInMs);
+		
+		long delta = 0; // Difference between the time zone offset of the server and the client.
+		if(operator == '+')
+			delta = timeZoneHr*60*60*1000 + timeZoneMn*60*1000 - currentTimeZoneOffsetInMs;
+		else if(operator == '-')
+			delta = -(timeZoneHr*60*60*1000 + timeZoneMn*60*1000) - currentTimeZoneOffsetInMs;
+		
+		return delta;
+	}
+	
 	public static void main(String[] args) throws Exception {
 		//The Helper class contains some helper functions which are called when needed
 		final Helper help = new Helper();
@@ -287,6 +313,7 @@ public class SchedulerBot {
 				long sendingTime = incomingMsg.getDate();
 				
 				
+				
 				//If this value timeString exists (not null) then the user has used the iAlert command and is now sending the alert message
 				String timeString = refToChat.get(userId+chatId);
 				if(timeString != null && ((((incomingMsg.isFromAdmin()==1) && incomingMsg.getChatSettings() == 1) || (!chatType.equals("Channel"))))) {
@@ -304,23 +331,7 @@ public class SchedulerBot {
 							
 							TimeZoneOffset offset = db.getTimeZoneFromDB(chatId);
 							
-							int timeZoneHr = offset.getHour();
-							int timeZoneMn = offset.getMinute();
-							char operator = offset.getOperator();
-							
-							System.out.println("tzHr: " + timeZoneHr + " tzMn: " + timeZoneMn);
-							
-							System.out.println("Daylight Savings: " + TimeZone.getDefault().getDSTSavings());
-							
-							long currentTimeZoneOffsetInMs =  TimeZone.getDefault().getOffset(0) + TimeZone.getDefault().getDSTSavings();//60*60*1000; // CDT time zone is GMT-5 not GMT-6
-							
-							System.out.println("currentTimeZoneOffsetInMs: " + currentTimeZoneOffsetInMs);
-							
-							long delta = 0;
-							if(operator == '+')
-								delta = timeZoneHr*60*60*1000 + timeZoneMn*60*1000 - currentTimeZoneOffsetInMs;
-							else if(operator == '-')
-								delta = -(timeZoneHr*60*60*1000 + timeZoneMn*60*1000) - currentTimeZoneOffsetInMs;
+							long delta = computeDelta(offset);
 							
 							scheduledTime = help.timeStringToScheduledTime_B(timeString, delta);
 						} catch (ParseException e) 
@@ -607,8 +618,22 @@ public class SchedulerBot {
 										String alertText = alerts.get(i).get(0);
 										String alertMessageId = alerts.get(i).get(1);
 										String alertDate = alerts.get(i).get(2);
+										
+										// Convert string to date
+										SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+										Date date = sdf.parse(alertDate);
+										
+										// Convert date to millis and add the delta millis
+										long millis = date.getTime();
+										long delta = getDeltaFromDB(chatId, db);
+										millis += delta;
+										
+										// Convert millis back to date and format the date
+										Date newAlertDate = new Date(millis);
+										String nAlertDate = sdf.format(newAlertDate);
+										
 										int j = i+1;
-										scheduledAlerts += "Schedule "+j+": "+alertText+"\nSchedule Date: "+alertDate+"\nTo cancel, type '/clear "+alertMessageId+"'\n\n";
+										scheduledAlerts += "Schedule "+j+": "+alertText+"\nSchedule Date: "+nAlertDate+"\nTo cancel, type '/clear "+alertMessageId+"'\n\n";
 									}
 									scheduledAlerts = scheduledAlerts.substring(0,scheduledAlerts.length()-3);
 									message.setText(scheduledAlerts);
@@ -617,6 +642,9 @@ public class SchedulerBot {
 								}
 								
 							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (ParseException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
