@@ -1,4 +1,4 @@
-package schedulerBot;
+package com.nandbox.bots.scheduler;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;

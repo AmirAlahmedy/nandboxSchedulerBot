@@ -1,4 +1,4 @@
-package schedulerBot;
+package com.nandbox.bots.scheduler;
 import java.util.regex.Pattern;
 
 import java.time.Instant;
