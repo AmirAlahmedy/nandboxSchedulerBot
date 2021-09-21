@@ -122,11 +122,11 @@ class Helper{
 		return scheduledTime;
 	}
 	
-	public long timeStringToScheduledTime_B(String timeString, long msToAdd) throws ParseException {
+	public long timeStringToScheduledTime_B(String timeString, long delta) throws ParseException {
 		Date wakeUpDate=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(timeString);
 		long scheduledTime = wakeUpDate.getTime();
-		System.out.println("msToAdd: " + msToAdd);
-		return scheduledTime - msToAdd;
+		System.out.println("delta: " + delta);
+		return scheduledTime - delta;
 	}
 	
 	public OutMessage setMessageBasics(OutMessage message,String chatId,Long scheduledTime,Integer chatSettings,String toUserId) {
@@ -310,17 +310,17 @@ public class SchedulerBot {
 							
 							System.out.println("tzHr: " + timeZoneHr + " tzMn: " + timeZoneMn);
 							
-							long currentTimeZoneOffsetInMs =  TimeZone.getDefault().getOffset(0) + 60*60*1000;
+							long currentTimeZoneOffsetInMs =  TimeZone.getDefault().getOffset(0) + 60*60*1000; // CDT time zone is GMT-5 not GMT-6
 							
 							System.out.println("currentTimeZoneOffsetInMs: " + currentTimeZoneOffsetInMs);
 							
-							long msToAdd = 0;
+							long delta = 0;
 							if(operator == '+')
-								msToAdd = timeZoneHr*60*60*1000 + timeZoneMn*60*1000 - currentTimeZoneOffsetInMs;
+								delta = timeZoneHr*60*60*1000 + timeZoneMn*60*1000 - currentTimeZoneOffsetInMs;
 							else if(operator == '-')
-								msToAdd = -(timeZoneHr*60*60*1000 + timeZoneMn*60*1000) - currentTimeZoneOffsetInMs;
+								delta = -(timeZoneHr*60*60*1000 + timeZoneMn*60*1000) - currentTimeZoneOffsetInMs;
 							
-							scheduledTime = help.timeStringToScheduledTime_B(timeString, msToAdd);
+							scheduledTime = help.timeStringToScheduledTime_B(timeString, delta);
 						} catch (ParseException e) 
 						{
 							TextOutMessage errorMessage = new TextOutMessage();
