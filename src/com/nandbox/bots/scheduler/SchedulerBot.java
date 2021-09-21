@@ -655,16 +655,30 @@ public class SchedulerBot {
 						
 						if (help.isiAlertCommand_A(messageText) || help.isiAlertCommand_B(messageText)) 
 						{
-							String[] messageSplit = messageText.split(" ",2);
-							timeString = messageSplit[1];
-							
-							
-							//Send a confirmation message to the user to let him/her know that the alert has been set
-							TextOutMessage confirmationMessage = new TextOutMessage();
-							confirmationMessage.setText("Please send me your message to be scheduled");
-							
-							confirmationMessage = (TextOutMessage) help.setMessageBasics(confirmationMessage, chatId, null,incomingMsg.getChatSettings(),incomingMsg.getFrom().getId());
-							api.send(confirmationMessage);
+							try {
+								if(!db.chatIdExistsInTimeZoneTable(chatId)) {
+									TextOutMessage confirmationMessage = new TextOutMessage();
+									confirmationMessage.setText("Please setup your time zone before scheduling messages. Default time zone is CDT.");
+									
+									confirmationMessage = (TextOutMessage) help.setMessageBasics(confirmationMessage, chatId, null,incomingMsg.getChatSettings(),incomingMsg.getFrom().getId());
+									api.send(confirmationMessage);
+								}else {
+									
+									String[] messageSplit = messageText.split(" ",2);
+									timeString = messageSplit[1];
+									
+									
+									//Send a confirmation message to the user to let him/her know that the alert has been set
+									TextOutMessage confirmationMessage = new TextOutMessage();
+									confirmationMessage.setText("Please send me your message to be scheduled");
+									
+									confirmationMessage = (TextOutMessage) help.setMessageBasics(confirmationMessage, chatId, null,incomingMsg.getChatSettings(),incomingMsg.getFrom().getId());
+									api.send(confirmationMessage);
+								}
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 							
 							
 							refToChat.put(userId+chatId,timeString);
